@@ -34,13 +34,13 @@ namespace boost { namespace spirit { namespace x3
           , Context const& context, Attribute& attr) const
         {
             // in order to succeed we need to match at least one element
-            if (!detail::parse_into_container(
+            if (!detail::parse_into_container_base_impl<Left>::call(
                 this->left, first, last, context, attr))
                 return false;
 
             Iterator save = first;
             while (this->right.parse(first, last, context, unused)
-                && detail::parse_into_container(
+                && detail::parse_into_container_base_impl<Left>::call(
                     this->left, first, last, context, attr))
             {
                 save = first;
