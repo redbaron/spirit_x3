@@ -64,7 +64,9 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
 
         template <typename Source, typename Dest>
         inline typename enable_if<
-            is_same_size_sequence<Dest, Source>
+	    mpl::and_<
+                is_same_size_sequence<Dest, Source>,
+		mpl::not_<is_size_one_sequence<Dest> > >
         >::type
         move_to(Source&& src, Dest& dest, tuple_attribute)
         {
@@ -73,7 +75,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
 
         template <typename Source, typename Dest>
         inline typename enable_if<
-            is_size_one_sequence<Dest>
+		is_size_one_sequence<Dest>
         >::type
         move_to(Source&& src, Dest& dest, tuple_attribute)
         {
@@ -98,7 +100,8 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
         inline void
         move_to(Source&& src, Dest& dest, variant_attribute tag)
         {
-            move_to(src, dest, tag, is_size_one_sequence<Source>());
+            //move_to(src, dest, tag, is_size_one_sequence<Source>());
+            move_to(src, dest, tag, mpl::false_());
         }
 
         template <typename Iterator>

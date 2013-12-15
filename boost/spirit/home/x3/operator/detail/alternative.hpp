@@ -222,7 +222,7 @@ namespace boost { namespace spirit { namespace x3 { namespace detail
           , pass_parser_attribute<Parser, Attribute, Context>
           , pass_variant_unused>::type
     {
-        static bool const is_alternative = false;
+        typedef typename mpl::false_ is_alternative;
     };
 
     template <typename L, typename R, typename Attribute, typename Context>
@@ -231,7 +231,7 @@ namespace boost { namespace spirit { namespace x3 { namespace detail
           , pass_variant_used<Attribute>
           , pass_variant_unused>::type
     {
-        static bool const is_alternative = true;
+        typedef typename mpl::true_ is_alternative;
     };
 
     template <typename L, typename R, typename C>
@@ -303,19 +303,27 @@ namespace boost { namespace spirit { namespace x3 { namespace detail
             >::type
         type;
     };
+    
+    template<typename T1, typename T2>
+    void maybe_move(T1&& src, T2& dest, mpl::false_ /*is_alternative*/) {
+	traits::move_to(std::move(src), dest);
+    }
 
+    template<typename T1, typename T2>
+    void maybe_move(T1&& src, T2& dest, mpl::true_ /*is_alternative*/) {
+    }
+    
     template <typename Parser, typename Iterator, typename Context, typename Attribute>
     bool parse_alternative(
         Parser const& p, Iterator& first, Iterator const& last
       , Context const& context, Attribute& attr)
     {
-        typedef detail::pass_variant_attribute<Parser, Attribute, Context> pass;
 
+        typedef detail::pass_variant_attribute<Parser, Attribute, Context> pass;
         typename pass::type attr_ = pass::call(attr);
         if (p.parse(first, last, context, attr_))
         {
-            if (!pass::is_alternative)
-                traits::move_to(attr_, attr);
+	    maybe_move(attr_, attr, typename pass::is_alternative());
             return true;
         }
         return false;
