@@ -32,9 +32,15 @@ namespace boost { namespace spirit { namespace x3
         bool parse(Iterator& first, Iterator const& last
           , Context const& context, Attribute& attr) const
         {
+	    // to stop kleene from polluting attribute on partial
+	    // match (but still failing overall) we make it operate on
+	    // copy of attribute and copy result back to provided
+	    // on every successfull iteration
+	    Attribute attr_(attr);
             while (detail::parse_into_container(
-                this->subject, first, last, context, attr))
-                ;
+		       this->subject, first, last, context, attr_)) {
+		attr = attr_;
+	    };
             return true;
         }
     };
