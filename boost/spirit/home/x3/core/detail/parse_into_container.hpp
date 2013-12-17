@@ -87,6 +87,10 @@ namespace boost { namespace spirit { namespace x3 { namespace detail
             return true;
         }
 
+	// parsing directly into fusion associative sequence it works
+	// only if parser's attribute as sequence of 2 types, first
+	// being the key in associative sequence we are parsing into
+	// and rest is a value we are writing at the key
         template <typename Iterator, typename Context, typename Attribute>
         static bool call_synthesize(
             Parser const& parser
